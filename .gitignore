@@ -64,3 +64,13 @@ yarn-error.log
 
 # testing
 /coverage
+
+# zzz
+yarn.lock
+Gemfile
+tsconfig.json
+metro.config.js
+jest.config.js
+babel.config.js
+.prettierrc.js
+.watchmanconfig
