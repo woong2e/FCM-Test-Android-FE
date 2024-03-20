@@ -26,13 +26,15 @@ import {
   LearnMoreLinks,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
-import WelcomeScreen from './screens/welcome';
-import LoginScreen from './screens/login';
-import Navigator from './screens/navigation/Navigator';
+import Navigator from './screens/Navigator';
+import { Provider } from 'react-redux';
+import store from './store';
 
 function App(): React.JSX.Element {
   return (
-    <Navigator />
+    <Provider store={store}>
+      <Navigator />
+    </Provider>
   );
 }
 
