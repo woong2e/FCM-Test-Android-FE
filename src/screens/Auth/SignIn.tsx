@@ -5,6 +5,7 @@ import type { SignInProps } from '../../types/types';
 import { useAppSelector, useAppDispatch } from '../../hooks';
 import Styles from '../../styles/Styles';
 import { setIsLogin } from '../../store/loginSuccessSlice';
+import GoogleSignIn from '../../components/GoogleSignIn';
 
 
 function SignIn({ navigation } : SignInProps) {
@@ -39,10 +40,13 @@ function SignIn({ navigation } : SignInProps) {
       </View>
         <TouchableOpacity
         style={Styles.button}
-        onPress={() => navigation.navigate('Home')}>
+        // onPress={() => navigation.navigate('Home')}
+        >
         <Text style={Styles.buttonText}>로그인</Text>
         </TouchableOpacity>
     </View>    
+    <Text>--------------------</Text>
+    <GoogleSignIn/>
         </View>
     );
 }
