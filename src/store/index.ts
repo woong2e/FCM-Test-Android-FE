@@ -1,8 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit'
-import setIsLogin  from './loginSuccessSlice';
+import setLoggedIn  from './loginSuccessSlice';
 const store = configureStore({
   reducer: {
-    isLogin: setIsLogin,
+    isLogin: setLoggedIn,
 
   },
 });
