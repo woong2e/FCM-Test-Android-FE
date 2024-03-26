@@ -8,7 +8,10 @@ export type RootStackParamList = {
     Home: undefined;
     Login: undefined;
 };
-
+export type userInfo = {
+    name: number;
+    email: string;
+  }
 export type SignUpProps = NativeStackScreenProps<RootStackParamList, "SignUp">;
 export type SignInProps = NativeStackScreenProps<RootStackParamList, "SignIn">;
 export type WelcomeProps = NativeStackScreenProps<RootStackParamList, "Welcome">;
