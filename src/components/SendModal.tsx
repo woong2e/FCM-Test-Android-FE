@@ -1,87 +1,86 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, Pressable, Modal, TextInput} from 'react-native';
-import Styles from '../styles/Styles';
+import {View, Text, Pressable, Modal, TextInput, Alert} from 'react-native';
+import { modalStyles } from '../styles/modal';
+import { useAppDispatch, useAppSelector } from '../hooks';
+import { setIsModalVisible } from '../store/modalSlice';
+import { firestore } from 'firebase-admin';
+import { getFcmToken } from '../screens/Auth/SignIn';
+import { Filter } from '@react-native-firebase/firestore';
+  
+const SendModal = (props : any) => {
+  const dispatch = useAppDispatch();  
+  const isModalVisible = useAppSelector((state) => state.isModalVisible.isModalVisible);
+  const userState = useAppSelector((state) => state.userState.name);
+  
+  const [message, setMessage] = useState('');
+  const cleanup = () => {
+    setMessage('');
+  };
+  const handleClose = () => {
+    dispatch(setIsModalVisible(false));
+  };
 
+  const handleSend = async () => {
+    if (message.length == 0) {
+      Alert.alert('Please fill in all the required fields!');
+    } else {
+      const userRef = firestore().collection('AccountInfo');
+      const userDocSnap = await userRef.doc(props.email).get();
+      if (userDocSnap) {
+        await fetch('http://localhost:3000/api/send', {
+          method: "POST",
+          body: JSON.stringify({
+            token: userDocSnap.data()["deviceToken"],
+            name: userState,
+            notificationContent: message,
+          }),
+        }); 
 
-interface SendModalProps {
-    isModalVisible: boolean;
-    todo: userModal;
-    handleClose: () => {};
-    handleSubmit: () => {};
-  }
-  
-  const SendModal: React.FC<SendModalProps> = props => {
-    const [todo, setTodo] = useState<TodoModel>({
-      author: '',
-      title: '',
-      content: '',
-      priority: -1,
-    });
-  
-    useEffect(() => {
-      setTodo(props.todo);
-    }, [props]);
-  
-    const handleInputChange = (key: string, value: string | number) => {
-      setTodo(prevState => ({
-        ...prevState,
-        [key]: value,
-      }));
+        dispatch(setIsModalVisible(false));
+      }
     };
-  
-    const cleanup = () => {
-      setTodo({
-        author: '',
-        title: '',
-        content: '',
-        priority: -1,
-      });
-    };
-  
-    return (
-      <Modal
-        animationType="slide"
-        transparent={true}
-        presentationStyle={'overFullScreen'}
-        visible={props.isModalVisible}
-        onRequestClose={() => {
-          props.handleClose();
-        }}>
-        <View style={styles.container}>
-          <View style={styles.form}>
-            <TextInput
-              value={todo.priority !== -1 ? String(todo.priority) : ''}
-              style={styles.input}
-              placeholder="priority"
-              onChangeText={text => {
-                handleInputChange(
-                  'priority',
-                  isNaN(Number(text)) ? -1 : Number(text),
-                );
-              }}></TextInput>
-            <View style={styles.closeContainer}>
-              <Pressable
-                onPress={() => {
-                  if (!props.isModalVisible) {
-                    cleanup();
-                  }
-                  props.handleSubmit(todo);
-                }}>
-                <Text style={styles.button}> Submit </Text>
-              </Pressable>
-              <Pressable
-                onPress={() => {
-                  console.log(props.todo);
+  };
+
+  return (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      presentationStyle={'overFullScreen'}
+      visible={props.isModalVisible}
+      onRequestClose={() => {
+        handleClose();
+      }}>
+      <View style={modalStyles.container}>
+         <View style={modalStyles.form}>
+          <Text>{props.name}</Text>
+         <TextInput
+            placeholder="내용"
+            onChangeText={text => {
+              setMessage(text);
+              console.log(message);
+            }}></TextInput>
+          <View >
+            <Pressable
+              onPress={() => {
+                if (!props.isModalVisible) {
                   cleanup();
-                  props.handleClose();
-                }}>
-                <Text style={styles.button}> Close </Text>
-              </Pressable>
-            </View>
+                }
+                // handleSend();
+              }}>
+              <Text style={modalStyles.button}> Send </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => {
+                cleanup();
+                handleClose();
+              }}>
+              <Text style={modalStyles.button}> Close </Text>
+            </Pressable>
           </View>
         </View>
-      </Modal>
-    );
-  };
-  
-  export default SendModal;
+      </View>
+    </Modal>
+
+  );
+};
+export default SendModal
