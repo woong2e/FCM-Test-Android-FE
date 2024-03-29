@@ -7,37 +7,15 @@ import notifee, { Notification, NotificationAndroid } from '@notifee/react-nativ
 import firestore from '@react-native-firebase/firestore';
 import { userListStyles } from '../styles/userList';
 import SendModal from './SendModal';
+import { useAppDispatch, useAppSelector} from '../hooks'
+import { setIsModalVisible } from '../store/modalSlice';
 
 
-interface UserProps {
-    name: string;
-    email: string;
-    // sendAlram: () => {};
-  }
-
-const User: React.FC<UserProps> = props => {
-    // const sendAlram = () => {
-    //     props.sendAlram(props.email);
-    // };
-    return (
-        <View style={userListStyles.container}>
-          <Text style={userListStyles.title}>{props.name}</Text>
-          <Text style={userListStyles.content}>{props.email}</Text>
-          <View style={userListStyles.footer}>
-            {/* <Pressable style={userListStyles.update} onPress={() => {sendAlram}}>
-                <Text style={Styles.buttonText}>알림 전송</Text>
-            </Pressable> */}
-          </View>
-        </View>
-      );
-}
-   
 function UsersTable() { 
-  const [isModalVisible, setModalVisible] = useState(false);
   const ref = firestore().collection('AccountInfo');
 	const [users, setUsers] = useState();
-
-	useEffect(() => {
+  
+  useEffect(() => {
 		return (ref.onSnapshot(querySnapshot => {
 			const list = [];
 			querySnapshot.forEach(doc => {
@@ -54,8 +32,30 @@ function UsersTable() {
 			}));
 		}, []);
 
-  const handlePlus = () => {
-    setModalVisible(true);
+  const dispatch = useAppDispatch();  
+  const isModalVisible = useAppSelector((state) => state.isModalVisible.isModalVisible);
+
+  interface UserProps {
+    name: string;
+    email: string;
+  }
+
+  const User: React.FC<UserProps> = props => {
+    return (
+      <View style={userListStyles.container}>
+        <Text style={userListStyles.title}>{props.name}</Text>
+        <Text style={userListStyles.content}>{props.email}</Text>
+        <View style={userListStyles.footer}>
+          <Pressable style={userListStyles.update} onPress={handleModal}>
+              <Text style={Styles.buttonText}>알림 전송</Text>
+          </Pressable>
+          <SendModal isModalVisible={isModalVisible} props={props}/>
+        </View>
+      </View>
+    );
+  }
+  const handleModal= () => {
+    dispatch(setIsModalVisible(true));
   };
 
   return (
@@ -64,9 +64,6 @@ function UsersTable() {
         <Text style={{marginLeft: 20, fontSize: 25, fontWeight: 'bold'}}>
           Users
         </Text>
-        <Pressable onPress={() => handlePlus()}>
-          <Text>알람 보내기</Text>
-        </Pressable>
       </View>
       <FlatList
         style={{ height: '80%'}}
@@ -74,25 +71,17 @@ function UsersTable() {
         data={users}
         // keyExtractor={item => item.author}
         renderItem={(item) => {
+          console.log("item :: ", item);
           return (
             <View>
               <User
-                name={item.name}
-                email={item.email}
+                name={item.item.name}
+                email={item.item.email}
               />
-              <Pressable onPress={() => handlePlus()}>
-              <Text>알람 보내기</Text>
-              </Pressable>
-            
             </View>    
           );
         }}
       />
-      {/* <SendModal
-        isModalVisible={isModalVisible}
-        handleClose={handleClose}
-        handleSubmit={handleSubmit}
-        todo={todo}></SendModal> */}
     </View>
   );
 }
