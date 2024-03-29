@@ -74,3 +74,6 @@ jest.config.js
 babel.config.js
 .prettierrc.js
 .watchmanconfig
+
+.env
+fcmtest-86990-firebase-adminsdk-8uxiq-5bea6793ea.json
