@@ -10,8 +10,18 @@ import auth from '@react-native-firebase/auth'
 import firestore from '@react-native-firebase/firestore';
 import { signIn } from './auth';
 import messaging from '@react-native-firebase/messaging';
+import { setLoggedInUser } from '../../store/loginUserSlice';
+
+export const getFcmToken = async () => {
+  await messaging().registerDeviceForRemoteMessages();
+  const fcmToken = await messaging().getToken();
+  console.log('[+] FCM Token :: ', fcmToken);
+  return fcmToken;
+};
 
 function SignIn({ navigation } : SignInProps) {
+  const dispatch = useAppDispatch();  
+
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -38,10 +48,13 @@ function SignIn({ navigation } : SignInProps) {
         .update({
           device_token: deviceToken,
           token_created_at: Date.now(),
-        })
-        .then(() => {
+        }).then(() => {
           console.log('User updated!');
         });
+        const us = await usersCollection.get();
+        dispatch(setLoggedInUser(us._data.name));
+        console.log("us._data.name :::::::::::::::::::::: ", us._data.name);
+        
       }
     navigation.navigate('Home');
     } catch (e) {
@@ -49,13 +62,6 @@ function SignIn({ navigation } : SignInProps) {
       Alert.alert("로그인에 실패하였습니다.");
     }
   }
-
-  const getFcmToken = async () => {
-    await messaging().registerDeviceForRemoteMessages();
-		const fcmToken = await messaging().getToken();
-		console.log('[+] FCM Token :: ', fcmToken);
-		return fcmToken;
-	};
 
     return (
         <View style={{flex: 1}}>
